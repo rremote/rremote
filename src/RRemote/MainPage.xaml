@@ -1,0 +1,313 @@
+﻿<Page x:Class="RRemote.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:models="using:RRemote.Roku"
+      xmlns:common="using:RRemote.Common"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <common:BoolToRedTransparentConverter x:Key="boolToRedTransparentConverter" />
+    </Page.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" MinWidth="400" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" x:Name="LeftGrid" Background="#FF0c0714">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20"
+                              Style="{StaticResource ComboBoxStyle}"
+                              BorderBrush="{StaticResource ButtonStyle1Border}"
+                              ItemsSource="{Binding AvailableDevices}"
+                              SelectedItem="{Binding SelectedDevice, Mode=TwoWay}" />
+                    <Button Grid.Column="1" Content="?" Command="{Binding ShowDeviceDetailsCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
+                    <Button Grid.Column="2" Content="-" Command="{Binding DeleteDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
+                    <Button Grid.Column="3" Content="+" Command="{Binding AddNewDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
+                </Grid>
+
+                <Grid Margin="5,5,5,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Back" />
+                    <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Up" />
+                    <Button Grid.Row="0" Grid.Column="2" Content="B" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Home" />
+
+                    <Button Grid.Row="1" Grid.Column="0" Content="D" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Left" />
+                    <Button Grid.Row="1" Grid.Column="1" Content="E" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Select" />
+                    <Button Grid.Row="1" Grid.Column="2" Content="F" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Right" />
+
+                    <Button Grid.Row="2" Grid.Column="0" Content="H" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="InstantReplay" />
+                    <Button Grid.Row="2" Grid.Column="1" Content="G" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Down" />
+                    <Button Grid.Row="2" Grid.Column="2" Content="I" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Info" />
+
+                    <Button Grid.Row="3" Grid.Column="0" Content="J" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Rev" />
+                    <Button Grid.Row="3" Grid.Column="1" Content="K" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Play" />
+                    <Button Grid.Row="3" Grid.Column="2" Content="L" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="Fwd" />
+
+                </Grid>
+
+                <Grid Margin="5,5,5,5" BorderThickness="0,1,0,0" BorderBrush="{StaticResource ButtonStyle1Border}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Row="0" Grid.Column="0" Content="Q" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="VolumeUp" />
+                    <Button Grid.Row="0" Grid.Column="1" Content="S" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="PowerOff" />
+                    <Button Grid.Row="0" Grid.Column="2" Content="M" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="ChannelUp" />
+
+                    <Button Grid.Row="1" Grid.Column="1" Content="O" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="VolumeMute" />
+
+                    <Button Grid.Row="2" Grid.Column="0" Content="P" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="VolumeDown" />
+                    <ComboBox Grid.Row="2" Grid.Column="1" PlaceholderText="Input"  Style="{StaticResource ComboButtonStyle}"
+                              SelectedItem="{Binding SelectedInput}"
+                              IsEnabled="{Binding ButtonsEnabled}">
+                        <ComboBox.Items>
+                            <ComboBoxItem Content="Tuner" Tag="InputTuner" />
+                            <ComboBoxItem Content="HDMI 1" Tag="InputHDMI1" />
+                            <ComboBoxItem Content="HDMI 2" Tag="InputHDMI2" />
+                            <ComboBoxItem Content="HDMI 3" Tag="InputHDMI3" />
+                            <ComboBoxItem Content="HDMI 4" Tag="InputHDMI4" />
+                            <ComboBoxItem Content="AV1" Tag="InputAV1" />
+                        </ComboBox.Items>
+                    </ComboBox>
+                    <Button Grid.Row="2" Grid.Column="2" Content="N" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            CommandParameter="ChannelDown" />
+                </Grid>
+
+                <Grid Margin="20,10,20,0">
+                    <StackPanel Grid.Row="0" VerticalAlignment="Bottom">
+                        <TextBox x:Name="VirtualKeyboard" 
+                                 FontSize="25em"
+                                 PlaceholderText="Type here to use keyboard"
+                                 IsEnabled="{Binding ButtonsEnabled}"
+                                 TextAlignment="Center"
+                                 KeyUp="VirtualKeyboard_KeyUp" />
+                        <Button Command="{Binding PressButtonCommand}"
+                                CommandParameter="FindRemote" 
+                                Margin="0,10,0,0" Content="Find My Remote"
+                                Foreground="{StaticResource ButtonStyle1Foreground}"
+                                BorderBrush="{StaticResource ButtonStyle1Foreground}"
+                                BorderThickness="1"
+                                HorizontalAlignment="Right" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <Popup IsOpen="{Binding ShowNewDeviceForm, Mode=TwoWay}"
+                   Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
+                   Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+                   IsLightDismissEnabled="False"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid Background="{StaticResource ButtonStyle1Border}" Padding="30,10,30,10"
+                      Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
+                      Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <Grid.Resources>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource GlobalFontStyle}">
+                            <Setter Property="Padding" Value="5,0,0,0" />
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource ButtonStyle1Foreground}" />
+                            <Setter Property="FontSize" Value="35em" />
+                            <Setter Property="Padding" Value="5,0,0,0" />
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource GlobalFontStyle}">
+                            <Setter Property="Padding" Value="5" />
+                            <Setter Property="Margin" Value="10" />
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Device IP Address and Port" />
+                    <TextBox Grid.Row="1" Text="{Binding NewDevice.Endpoint}" PlaceholderText="i.e. 192.168.1.134:8060" />
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Save" Command="{Binding SaveNewDeviceCommand}" />
+                        <Button Content="Cancel" Command="{Binding CancelNewDeviceCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Popup>
+            <Popup IsOpen="{Binding ShowDeviceDetails, Mode=TwoWay}"
+                   Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
+                   Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                   IsLightDismissEnabled="True">
+                <ScrollViewer Height="{Binding ElementName=LeftGrid, Path=ActualHeight}">
+                    <Grid Background="{StaticResource ButtonStyle1Border}"
+                          Padding="30,10,30,10"
+                          Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
+                          Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right">
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DetailsTextBlockStyle}">
+                                    <Setter Property="HorizontalTextAlignment" Value="Right" />
+                                </Style>
+                            </StackPanel.Resources>
+                            <TextBlock Text="udn : " />
+                            <TextBlock Text="serial-number : " />
+                            <TextBlock Text="device-id : " />
+                            <TextBlock Text="vendor-name : " />
+                            <TextBlock Text="model-number : " />
+                            <TextBlock Text="model-name : " />
+                            <TextBlock Text="model-region : " />
+                            <TextBlock Text="supports-ethernet : " />
+                            <TextBlock Text="wifi-mac : " />
+                            <TextBlock Text="ethernet-mac : " />
+                            <TextBlock Text="network-type : " />
+                            <TextBlock Text="user-device-name : " />
+                            <TextBlock Text="software-version : " />
+                            <TextBlock Text="software-build : " />
+                            <TextBlock Text="secure-device : " />
+                            <TextBlock Text="language : " />
+                            <TextBlock Text="country : " />
+                            <TextBlock Text="locale : " />
+                            <TextBlock Text="time-zone : " />
+                            <TextBlock Text="time-zone-offset : " />
+                            <TextBlock Text="power-mode : " />
+                            <TextBlock Text="supports-suspend : " />
+                            <TextBlock Text="supports-find-remote : " />
+                            <TextBlock Text="supports-audio-guide : " />
+                            <TextBlock Text="developer-enabled : " />
+                            <TextBlock Text="Endpoint : " />
+                            <TextBlock Text="Is Manual Entry : " />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Grid.Row="0" Margin="10,0,0,0">
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DetailsTextBlockStyle}">
+                                    <Setter Property="HorizontalTextAlignment" Value="Left" />
+                                </Style>
+                            </StackPanel.Resources>
+                            <TextBlock Text="{Binding SelectedDevice.udn}" />
+                            <TextBlock Text="{Binding SelectedDevice.serial_number}" />
+                            <TextBlock Text="{Binding SelectedDevice.device_id}" />
+                            <TextBlock Text="{Binding SelectedDevice.vendor_name}" />
+                            <TextBlock Text="{Binding SelectedDevice.model_number}" />
+                            <TextBlock Text="{Binding SelectedDevice.model_name}" />
+                            <TextBlock Text="{Binding SelectedDevice.model_region}" />
+                            <TextBlock Text="{Binding SelectedDevice.supports_ethernet}" />
+                            <TextBlock Text="{Binding SelectedDevice.wifi_mac}" />
+                            <TextBlock Text="{Binding SelectedDevice.ethernet_mac}" />
+                            <TextBlock Text="{Binding SelectedDevice.network_type}" />
+                            <TextBlock Text="{Binding SelectedDevice.user_device_name}" />
+                            <TextBlock Text="{Binding SelectedDevice.software_version}" />
+                            <TextBlock Text="{Binding SelectedDevice.software_build}" />
+                            <TextBlock Text="{Binding SelectedDevice.secure_device}" />
+                            <TextBlock Text="{Binding SelectedDevice.language}" />
+                            <TextBlock Text="{Binding SelectedDevice.country}" />
+                            <TextBlock Text="{Binding SelectedDevice.locale}" />
+                            <TextBlock Text="{Binding SelectedDevice.time_zone}" />
+                            <TextBlock Text="{Binding SelectedDevice.time_zone_offset}" />
+                            <TextBlock Text="{Binding SelectedDevice.power_mode}" />
+                            <TextBlock Text="{Binding SelectedDevice.supports_suspend}" />
+                            <TextBlock Text="{Binding SelectedDevice.supports_find_remote}" />
+                            <TextBlock Text="{Binding SelectedDevice.supports_audio_guide}" />
+                            <TextBlock Text="{Binding SelectedDevice.developer_enabled}" />
+                            <TextBlock Text="{Binding SelectedDevice.Endpoint}" />
+                            <TextBlock Text="{Binding SelectedDevice.IsStatic}" />
+                        </StackPanel>
+                        <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Content="Hide"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10"
+                                Command="{Binding HideFormsCommand}" />
+                    </Grid>
+                </ScrollViewer>
+            </Popup>
+        </Grid>
+
+        <Grid Grid.Column="1" Background="#FF170e26" Margin="20,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="My Channels" FontSize="35em" Margin="10,10,0,0" />
+
+            <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto" Margin="30,20,0,0" HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
+                <ItemsControl ItemsSource="{Binding SelectedDevice.Apps, Mode=TwoWay}" HorizontalAlignment="Stretch">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VariableSizedWrapGrid Orientation="Horizontal" ItemHeight="110" ItemWidth="145" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:RokuApp">
+                            <Button CommandParameter="{Binding Id}" Padding="0" Style="{StaticResource AppButtonStyle}"
+                                    ToolTipService.ToolTip="{Binding NumberAndName}"
+                                    BorderBrush="{Binding IsSelected, Converter={StaticResource boolToRedTransparentConverter}}"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    Command="{Binding DataContext.LaunchAppCommand, ElementName=page}">
+                                <Button.Content>
+                                    <Image Source="{Binding Icon}" Margin="0" />
+                                </Button.Content>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <TextBlock Grid.Row="2" Margin="0,0,5,5" Text="{Binding MyIp}" FontSize="12em" Foreground="LightYellow"
+                       TextAlignment="Right" HorizontalAlignment="Right" />
+        </Grid>
+    </Grid>
+</Page>

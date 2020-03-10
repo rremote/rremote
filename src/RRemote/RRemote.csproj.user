@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Source>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</Source>
+    <SmallTileSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</SmallTileSource>
+    <MediumTileSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</MediumTileSource>
+    <WideTileSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</WideTileSource>
+    <LargeTileSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</LargeTileSource>
+    <AppIconSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</AppIconSource>
+    <SplashScreenSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</SplashScreenSource>
+    <PackageLogoSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</PackageLogoSource>
+    <BadgeLogoSource>D:\Users\scott\source\repos\RRemote\RRemote\Assets\RRemote.png</BadgeLogoSource>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DeviceId>30f105c9-681e-420b-a277-7c086ead8a4e</DeviceId>
+    <UseEmulator>true</UseEmulator>
+  </PropertyGroup>
+</Project>
