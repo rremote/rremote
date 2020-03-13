@@ -167,7 +167,7 @@ namespace RRemote.ViewModels
 
         #region Discovery
 
-        private int DiscoverDeviceTimeInMinutes { get; } = 15;
+        private int DiscoverDeviceTimeInMinutes { get; } = 1;
         private ThreadPoolTimer DiscoverDeviceTimer { get; set; }
 
         private void DiscoverDeviceTimer_Tick(ThreadPoolTimer timer)
@@ -196,10 +196,13 @@ namespace RRemote.ViewModels
                     devices = AvailableDevices.Where(x => !x.IsStatic).ToArray();
                 }
 
+                TimeSpan olderThan = TimeSpan.FromMinutes(DiscoverDeviceTimeInMinutes);
+                DateTime now = DateTime.Now;
                 foreach (var dev in devices)
-                    if (dev.LastSeen < DateTime.Now.AddMinutes(-1 * DiscoverDeviceTimeInMinutes))
+                    if ( (now - dev.LastSeen) > olderThan )
                         UiRun(() =>
                         {
+
                             lock (DeviceLocker)
                             {
                                 AvailableDevices.Remove(dev);
