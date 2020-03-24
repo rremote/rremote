@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="4d604808-3ddb-4650-8f02-84a286c5b2e5"
-    Publisher="CN=scott"
-    Version="1.0.0.0" />
+    Name="43290NullTheory.RRemote"
+    Publisher="CN=4953D5F8-0416-4BD1-870A-C7525213C4AA"
+    Version="1.0.1.0" />
 
-  <mp:PhoneIdentity PhoneProductId="4d604808-3ddb-4650-8f02-84a286c5b2e5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="c5aa7550-1287-4ca7-af76-1a99077f6fc7" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>RRemote</DisplayName>
-    <PublisherDisplayName>Scott McBrady</PublisherDisplayName>
+    <PublisherDisplayName>Null Theory</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

@@ -5,6 +5,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using RRemote.ViewModels;
+using Windows.UI.Xaml.Controls.Primitives;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -65,5 +66,19 @@ namespace RRemote
             _ = vm.PressKeyboardKey(txt);
             VirtualKeyboard.Text = "";
         }
+
+        private void LeftGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            vm.LeftGridHeight = LeftGrid.ActualHeight;
+            vm.LeftGridWidth = LeftGrid.ActualWidth;
+        }
+
+        //private void mainPage_SizeChanged(object sender, SizeChangedEventArgs e)
+        //{
+        //    NewDeviceForm.GetBindingExpression(Popup.HeightProperty).UpdateTarget();
+        //    NewDeviceForm.GetBindingExpression(Popup.WidthProperty).UpdateSource();
+        //    DeviceDetails.GetBindingExpression(Popup.HeightProperty).UpdateSource();
+        //    DeviceDetails.GetBindingExpression(Popup.WidthProperty).UpdateSource();
+        //}
     }
 }

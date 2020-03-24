@@ -1,0 +1,9 @@
+RRemote only communicates with devices on your local network.
+
+No information, whatsoever, is transmitted from RRemote to any
+outside party or location. 
+
+The only data that is stored is kept on your local computer and
+consists of any manual entries you've added and the most recent
+auto discovered devices. 
+
