@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Controls;
 using Microsoft.Toolkit.Uwp.Helpers;
 using RRemote.Common;
 using RRemote.Roku;
+using Windows.UI.Popups;
 
 namespace RRemote.ViewModels
 {
@@ -59,7 +60,6 @@ namespace RRemote.ViewModels
             get => _selectedDevice;
             set
             {
-                ButtonsEnabled = value != null;
                 SetProperty(ref _selectedDevice, value);
 
                 if (value != null)
@@ -71,9 +71,12 @@ namespace RRemote.ViewModels
                     }
 
                     value.IsSelected = true;
-                    DiscoverApps(value);
+                    if (!value.IsPlaceholder)
+                    {
+                        DiscoverApps(value);
+                        ButtonsEnabled = value != null;
+                    }
                 }
-
                 PressButtonCommand.RaiseCanExecuteChanged();
                 LaunchAppCommand.RaiseCanExecuteChanged();
                 DeleteDeviceCommand.RaiseCanExecuteChanged();
@@ -86,7 +89,7 @@ namespace RRemote.ViewModels
             get => _selectedInput;
             set
             {
-                if (SelectedDevice != null)
+                if (SelectedDevice != null && !SelectedDevice.IsPlaceholder)
                     _ = RokuClient.PressKey(SelectedDevice.Endpoint, (string) value.Tag);
                 SetProperty(ref _selectedInput, null);
             }
@@ -169,13 +172,38 @@ namespace RRemote.ViewModels
 
         private int DiscoverDeviceTimeInMinutes { get; } = 1;
         private ThreadPoolTimer DiscoverDeviceTimer { get; set; }
-
+        private bool ShownAutoDiscoverFailureMessage { get; set; }
         private void DiscoverDeviceTimer_Tick(ThreadPoolTimer timer)
         {
-            Task.Run(() =>
+            UiRun(() =>
             {
+                if (AvailableDevices.Count == 0)
+                {
+                    var placeHolder = new RokuDevice()
+                    {
+                        IsPlaceholder = true,
+                        IsSelected = true,
+                        LastSeen = DateTime.Now.AddYears(100),
+                        user_device_name = "Searching..."
+                    };
+                    AvailableDevices.Add(placeHolder);
+                    SelectedDevice = placeHolder;
+                }
+            });
+            
+            Task.Run(async () =>
+            {
+                
                 //Search the local network using SSDP
-                _ = RokuClient.Discover(DeviceDiscovered, _mcIp, _mcPort);
+                await RokuClient.Discover(DeviceDiscovered, _mcIp, _mcPort);
+
+                if (AvailableDevices.Count == 0 && ShownAutoDiscoverFailureMessage == false)
+                    UiRun(async () =>
+                    {
+                        ShownAutoDiscoverFailureMessage = true;
+                        await new MessageDialog("Auto discover detected no devices. Are you sure you're on the same network as your Rokus? You may have to manually add a Roku by IP address.").ShowAsync();
+                    });
+
 
                 //Update all the static devices that may not be discoverable
                 //due to being on a different subnet or SSDP being blocked
@@ -193,13 +221,13 @@ namespace RRemote.ViewModels
                 devices = new RokuDevice[0];
                 lock (DeviceLocker)
                 {
-                    devices = AvailableDevices.Where(x => !x.IsStatic).ToArray();
+                    devices = AvailableDevices.Where(x => !x.IsStatic && !x.IsPlaceholder).ToArray();
                 }
 
                 TimeSpan olderThan = TimeSpan.FromMinutes(DiscoverDeviceTimeInMinutes);
                 DateTime now = DateTime.Now;
                 foreach (var dev in devices)
-                    if ( (now - dev.LastSeen) > olderThan )
+                    if ( ((now - dev.LastSeen) > olderThan) && !dev.IsPlaceholder )
                         UiRun(() =>
                         {
 
@@ -221,6 +249,18 @@ namespace RRemote.ViewModels
             var selected = SelectedDevice;
             var bFound = false;
             discoveredDevice.LastSeen = DateTime.Now;
+
+            UiRun(() =>
+            {
+                lock (DeviceLocker)
+                {
+                    foreach( var dev in AvailableDevices.ToArray() )
+                        if( dev.IsPlaceholder )
+                        {
+                            AvailableDevices.Remove(dev);
+                        }
+                }
+            });
 
             //This function can be called from different threads so 
             //make access to AvailableDevices thread safe
@@ -332,7 +372,7 @@ namespace RRemote.ViewModels
 
         private void FindAndSetActiveApp()
         {
-            if (SelectedDevice != null)
+            if (SelectedDevice != null && !SelectedDevice.IsPlaceholder)
             {
                 var activeApp = RokuClient.GetCurrentApp(SelectedDevice.Endpoint).Result;
                 MakeAppActive(SelectedDevice, activeApp);
@@ -406,7 +446,7 @@ namespace RRemote.ViewModels
 
         private async Task DeleteDeviceCommandAsync()
         {
-            if (SelectedDevice != null)
+            if (SelectedDevice != null && !SelectedDevice.IsPlaceholder)
             {
                 var dialog = new ContentDialog
                 {
@@ -433,7 +473,7 @@ namespace RRemote.ViewModels
 
         private bool DeleteDeviceCommandCanExecute()
         {
-            return SelectedDevice != null;
+            return SelectedDevice != null && !SelectedDevice.IsPlaceholder;
         }
 
         private DelegateCommand _saveNewDeviceCommand;
@@ -446,7 +486,24 @@ namespace RRemote.ViewModels
         private async Task SaveNewDeviceCommandAsync()
         {
             ShowNewDeviceForm = false;
-            await RokuClient.ReadDevice(DeviceDiscovered, $"http://{NewDevice.Endpoint}/");
+            if (!string.IsNullOrWhiteSpace(NewDevice.Endpoint))
+            {
+                try
+                {
+                    string endpoint = NewDevice.Endpoint;
+                    if (!endpoint.Contains(":"))
+                        endpoint = endpoint + ":8060";
+                    await RokuClient.ReadDevice(DeviceDiscovered, $"http://{endpoint}/");
+                }
+                catch(Exception ex)
+                {
+                    await new MessageDialog("Could not communicate with the address you entered. Try again.").ShowAsync();
+                }
+            }
+            else
+            {
+                await new MessageDialog("You must enter an IP address or cancel.").ShowAsync();
+            }
             NewDevice = null;
         }
 
@@ -487,7 +544,7 @@ namespace RRemote.ViewModels
 
         private bool ShowDeviceDetailsCommandCanExecute()
         {
-            return SelectedDevice != null;
+            return SelectedDevice != null && !SelectedDevice.IsPlaceholder;
         }
 
         private DelegateCommand _hideFormsCommand;
@@ -507,6 +564,21 @@ namespace RRemote.ViewModels
             return true;
         }
 
+        private double _LeftGridWidth;
+
+        public double LeftGridWidth
+        {
+            get => _LeftGridWidth;
+            set => SetProperty(ref _LeftGridWidth, value);
+        }
+        private double _LeftGridHeight;
+
+        public double LeftGridHeight
+        {
+            get => _LeftGridHeight;
+            set => SetProperty(ref _LeftGridHeight, value);
+        }
+
         #endregion
 
         #region Commands
@@ -520,12 +592,12 @@ namespace RRemote.ViewModels
 
         private async Task PressButtonCommandAsync(string obj)
         {
-            if (SelectedDevice != null) _ = RokuClient.PressKey(SelectedDevice.Endpoint, obj);
+            if (SelectedDevice != null && !SelectedDevice.IsPlaceholder) _ = RokuClient.PressKey(SelectedDevice.Endpoint, obj);
         }
 
         private bool PressButtonCommandCanExecute(string obj)
         {
-            return SelectedDevice != null;
+            return SelectedDevice != null && !SelectedDevice.IsPlaceholder;
         }
 
         private DelegateCommand<string> _launchAppCommand;
@@ -537,12 +609,12 @@ namespace RRemote.ViewModels
 
         private async Task LaunchAppCommandAsync(string obj)
         {
-            if (SelectedDevice != null) _ = RokuClient.LaunchApp(SelectedDevice.Endpoint, obj);
+            if (SelectedDevice != null && !SelectedDevice.IsPlaceholder) _ = RokuClient.LaunchApp(SelectedDevice.Endpoint, obj);
         }
 
         private bool LaunchAppCommandCanExecute(string obj)
         {
-            return SelectedDevice != null;
+            return SelectedDevice != null && !SelectedDevice.IsPlaceholder;
         }
 
         #endregion
@@ -551,6 +623,7 @@ namespace RRemote.ViewModels
 
         private async Task LoadSettings()
         {
+            ButtonsEnabled = false;
             if (!_localSettings.Values.ContainsKey("mc_ip"))
                 _localSettings.Values["mc_ip"] = "239.255.255.250";
             _mcIp = _localSettings.Values["mc_ip"] as string;
@@ -572,6 +645,7 @@ namespace RRemote.ViewModels
             if (!string.IsNullOrWhiteSpace(devicesXml))
                 devices = Serializer.Deserialize<RokuDevice[]>(devicesXml);
             AvailableDevices.Clear();
+            
             foreach (var dev in devices)
             {
                 if (dev.IsStatic)
@@ -584,8 +658,21 @@ namespace RRemote.ViewModels
                 if (dev.IsSelected)
                     SelectedDevice = dev;
             }
-
-            if (SelectedDevice == null && AvailableDevices.Count > 0)
+            if (AvailableDevices.Count == 0)
+            {
+                var placeHolder = new RokuDevice()
+                {
+                    IsPlaceholder = true,
+                    IsSelected = true,
+                    LastSeen = DateTime.Now.AddYears(100),
+                    user_device_name = "Searching..."
+                };
+                AvailableDevices.Add(placeHolder);
+                SelectedDevice = placeHolder;
+            }
+            
+            if (SelectedDevice == null && AvailableDevices.Count > 0 &&
+                !AvailableDevices.ElementAt(0).IsPlaceholder)
                 SelectedDevice = AvailableDevices.ElementAt(0);
         }
 

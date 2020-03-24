@@ -6,7 +6,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d" x:Name="mainPage"
-      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
     <Page.Resources>
         <common:BoolToRedTransparentConverter x:Key="boolToRedTransparentConverter" />
     </Page.Resources>
@@ -16,7 +16,7 @@
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" x:Name="LeftGrid" Background="#FF0c0714">
+        <Grid Grid.Column="0" x:Name="LeftGrid" Background="#FF0c0714" SizeChanged="LeftGrid_SizeChanged">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -28,7 +28,7 @@
                     <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20"
                               Style="{StaticResource ComboBoxStyle}"
                               BorderBrush="{StaticResource ButtonStyle1Border}"
-                              ItemsSource="{Binding AvailableDevices}"
+                              ItemsSource="{Binding AvailableDevices, Mode=TwoWay}"
                               SelectedItem="{Binding SelectedDevice, Mode=TwoWay}" />
                     <Button Grid.Column="1" Content="?" Command="{Binding ShowDeviceDetailsCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
                     <Button Grid.Column="2" Content="-" Command="{Binding DeleteDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
@@ -136,14 +136,14 @@
                     </StackPanel>
                 </Grid>
             </StackPanel>
-            <Popup IsOpen="{Binding ShowNewDeviceForm, Mode=TwoWay}"
-                   Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
-                   Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+            <Popup x:Name="NewDeviceForm" IsOpen="{Binding ShowNewDeviceForm, Mode=TwoWay}"
+                   Height="{Binding LeftGridHeight}"
+                   Width="{Binding LeftGridWidth}"
                    IsLightDismissEnabled="False"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid Background="{StaticResource ButtonStyle1Border}" Padding="30,10,30,10"
-                      Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
-                      Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+                      Height="{Binding LeftGridHeight}"
+                      Width="{Binding LeftGridWidth}"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                     <Grid.Resources>
                         <Style TargetType="TextBox" BasedOn="{StaticResource GlobalFontStyle}">
@@ -152,7 +152,7 @@
                         </Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="{StaticResource ButtonStyle1Foreground}" />
-                            <Setter Property="FontSize" Value="35em" />
+                            <Setter Property="FontSize" Value="25em" />
                             <Setter Property="Padding" Value="5,0,0,0" />
                             <Setter Property="Margin" Value="5" />
                         </Style>
@@ -168,23 +168,23 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="Device IP Address and Port" />
-                    <TextBox Grid.Row="1" Text="{Binding NewDevice.Endpoint}" PlaceholderText="i.e. 192.168.1.134:8060" />
+                    <TextBox Grid.Row="1" Text="{Binding NewDevice.Endpoint, Mode=TwoWay}" PlaceholderText="i.e. 192.168.1.134:8060" />
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Save" Command="{Binding SaveNewDeviceCommand}" />
                         <Button Content="Cancel" Command="{Binding CancelNewDeviceCommand}" />
                     </StackPanel>
                 </Grid>
             </Popup>
-            <Popup IsOpen="{Binding ShowDeviceDetails, Mode=TwoWay}"
-                   Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
-                   Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+            <Popup x:Name="DeviceDetails" IsOpen="{Binding ShowDeviceDetails, Mode=TwoWay}"
+                   Height="{Binding LeftGridHeight}"
+                   Width="{Binding LeftGridWidth}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                    IsLightDismissEnabled="True">
                 <ScrollViewer Height="{Binding ElementName=LeftGrid, Path=ActualHeight}">
                     <Grid Background="{StaticResource ButtonStyle1Border}"
                           Padding="30,10,30,10"
-                          Height="{Binding ElementName=LeftGrid, Path=ActualHeight}"
-                          Width="{Binding ElementName=LeftGrid, Path=ActualWidth}"
+                          Height="{Binding LeftGridHeight}"
+                          Width="{Binding LeftGridWidth}"
                           VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
@@ -237,7 +237,7 @@
                                     <Setter Property="HorizontalTextAlignment" Value="Left" />
                                 </Style>
                             </StackPanel.Resources>
-                            <TextBlock Text="{Binding SelectedDevice.udn}" />
+                            <TextBlock Text="{Binding SelectedDevice.udn}" TextWrapping="Wrap" />
                             <TextBlock Text="{Binding SelectedDevice.serial_number}" />
                             <TextBlock Text="{Binding SelectedDevice.device_id}" />
                             <TextBlock Text="{Binding SelectedDevice.vendor_name}" />

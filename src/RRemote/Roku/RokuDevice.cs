@@ -26,6 +26,8 @@ namespace RRemote.Roku
 
         private bool _IsSelected;
 
+        private bool _IsPlaceholder = false;
+
         private bool _IsStatic;
 
         private string _language = "";
@@ -260,6 +262,12 @@ namespace RRemote.Roku
         {
             get => _IsSelected;
             set => SetProperty(ref _IsSelected, value);
+        }
+
+        public bool IsPlaceholder
+        {
+            get => _IsPlaceholder;
+            set => SetProperty(ref _IsPlaceholder, value);
         }
 
         [DataMember]

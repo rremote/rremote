@@ -6,3 +6,6 @@
 /src/RRemote/obj
 /src/.vs/RRemote/v16
 /.vs
+/src/RRemote/AppPackages
+/src/RRemote/BundleArtifacts
+/src/RRemote/Package.StoreAssociation.xml
