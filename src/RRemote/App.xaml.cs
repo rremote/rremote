@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MetroLog;
+using MetroLog.Targets;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -12,14 +14,27 @@ namespace RRemote
     /// </summary>
     sealed partial class App : Application
     {
+        public static ILogger Log { get; set; }
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
         public App()
         {
+            var settings = LogManagerFactory.CreateLibraryDefaultSettings();
+            settings.AddTarget(LogLevel.Trace, LogLevel.Fatal, new FileStreamingTarget());
+            Log = LogManagerFactory.CreateLogManager(settings).GetLogger<App>();
+
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            UnhandledException += App_UnhandledException;
+            GlobalCrashHandler.Configure();
+        }
+
+        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            Log.Error(e.Message, e.Exception);
         }
 
         /// <summary>

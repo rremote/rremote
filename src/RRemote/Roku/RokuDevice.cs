@@ -264,6 +264,7 @@ namespace RRemote.Roku
             set => SetProperty(ref _IsSelected, value);
         }
 
+        [DataMember]
         public bool IsPlaceholder
         {
             get => _IsPlaceholder;

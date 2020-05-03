@@ -17,125 +17,141 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0" x:Name="LeftGrid" Background="#FF0c0714" SizeChanged="LeftGrid_SizeChanged">
-            <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20"
+            <Viewbox>
+                <Viewbox.RenderTransform>
+                    <RotateTransform Angle="0.001"></RotateTransform>
+                </Viewbox.RenderTransform>
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" MinWidth="400"
+                              VerticalAlignment="Center" Margin="20"
                               Style="{StaticResource ComboBoxStyle}"
                               BorderBrush="{StaticResource ButtonStyle1Border}"
                               ItemsSource="{Binding AvailableDevices, Mode=TwoWay}"
-                              SelectedItem="{Binding SelectedDevice, Mode=TwoWay}" />
-                    <Button Grid.Column="1" Content="?" Command="{Binding ShowDeviceDetailsCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
-                    <Button Grid.Column="2" Content="-" Command="{Binding DeleteDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
-                    <Button Grid.Column="3" Content="+" Command="{Binding AddNewDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}"/>
-                </Grid>
+                              SelectedItem="{Binding SelectedDevice, Mode=TwoWay}" IsDropDownOpen="True" MaxDropDownHeight="1024" IsRightTapEnabled="False" />
+                        <Button Grid.Column="1" Content="?" Command="{Binding ShowDeviceDetailsCommand}" Style="{StaticResource SmallRemoteButtonStyle}" ToolTipService.ToolTip="Show Roku Details"/>
+                        <Button Grid.Column="2" Content="Q" Command="{Binding RefreshDeviceList}" Style="{StaticResource SmallRemoteButtonStyle}" FontFamily="Wingdings 3" x:Name="btnRefresh" ToolTipService.ToolTip="Refresh Device List">
+                            <Button.Resources>
+                                <Storyboard x:Name="colorStoryboard">
+                                    <ColorAnimation Storyboard.TargetName="btnRefresh" RepeatBehavior="Forever"
+                                        Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="#FF542A79" Duration="0:0:1" AutoReverse="True"/>
+                                </Storyboard>
+                            </Button.Resources>
+                        </Button>
+                        <Button Grid.Column="3" Content="-" Command="{Binding DeleteDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}" ToolTipService.ToolTip="Remove Roku"/>
+                        <Button Grid.Column="4" Content="+" Command="{Binding AddNewDeviceCommand}" Style="{StaticResource SmallRemoteButtonStyle}" ToolTipService.ToolTip="Add Roku By IP"/>
+                    </Grid>
 
-                <Grid Margin="5,5,5,5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                    </Grid.ColumnDefinitions>
+                    <Grid Margin="5,5,5,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
 
-                    <Button Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Back" />
-                    <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Up" />
-                    <Button Grid.Row="0" Grid.Column="2" Content="B" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="0" Grid.Column="2" Content="B" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Home" />
 
-                    <Button Grid.Row="1" Grid.Column="0" Content="D" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="1" Grid.Column="0" Content="D" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Left" />
-                    <Button Grid.Row="1" Grid.Column="1" Content="E" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="1" Grid.Column="1" Content="E" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Select" />
-                    <Button Grid.Row="1" Grid.Column="2" Content="F" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="1" Grid.Column="2" Content="F" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Right" />
 
-                    <Button Grid.Row="2" Grid.Column="0" Content="H" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="2" Grid.Column="0" Content="H" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="InstantReplay" />
-                    <Button Grid.Row="2" Grid.Column="1" Content="G" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="2" Grid.Column="1" Content="G" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Down" />
-                    <Button Grid.Row="2" Grid.Column="2" Content="I" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="2" Grid.Column="2" Content="I" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Info" />
 
-                    <Button Grid.Row="3" Grid.Column="0" Content="J" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="3" Grid.Column="0" Content="J" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Rev" />
-                    <Button Grid.Row="3" Grid.Column="1" Content="K" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="3" Grid.Column="1" Content="K" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Play" />
-                    <Button Grid.Row="3" Grid.Column="2" Content="L" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="3" Grid.Column="2" Content="L" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="Fwd" />
 
-                </Grid>
+                    </Grid>
 
-                <Grid Margin="5,5,5,5" BorderThickness="0,1,0,0" BorderBrush="{StaticResource ButtonStyle1Border}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                    </Grid.ColumnDefinitions>
+                    <Grid Margin="5,5,5,5" BorderThickness="0,1,0,0" BorderBrush="{StaticResource ButtonStyle1Border}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
 
-                    <Button Grid.Row="0" Grid.Column="0" Content="Q" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="0" Grid.Column="0" Content="Q" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="VolumeUp" />
-                    <Button Grid.Row="0" Grid.Column="1" Content="S" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="0" Grid.Column="1" Content="S" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="PowerOff" />
-                    <Button Grid.Row="0" Grid.Column="2" Content="M" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="0" Grid.Column="2" Content="M" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="ChannelUp" />
 
-                    <Button Grid.Row="1" Grid.Column="1" Content="O" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="1" Grid.Column="1" Content="O" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="VolumeMute" />
 
-                    <Button Grid.Row="2" Grid.Column="0" Content="P" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                        <Button Grid.Row="2" Grid.Column="0" Content="P" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="VolumeDown" />
-                    <ComboBox Grid.Row="2" Grid.Column="1" PlaceholderText="Input"  Style="{StaticResource ComboButtonStyle}"
+                        <ComboBox Grid.Row="2" Grid.Column="1" PlaceholderText="Input"  Style="{StaticResource ComboButtonStyle}"
                               SelectedItem="{Binding SelectedInput}"
                               IsEnabled="{Binding ButtonsEnabled}">
-                        <ComboBox.Items>
-                            <ComboBoxItem Content="Tuner" Tag="InputTuner" />
-                            <ComboBoxItem Content="HDMI 1" Tag="InputHDMI1" />
-                            <ComboBoxItem Content="HDMI 2" Tag="InputHDMI2" />
-                            <ComboBoxItem Content="HDMI 3" Tag="InputHDMI3" />
-                            <ComboBoxItem Content="HDMI 4" Tag="InputHDMI4" />
-                            <ComboBoxItem Content="AV1" Tag="InputAV1" />
-                        </ComboBox.Items>
-                    </ComboBox>
-                    <Button Grid.Row="2" Grid.Column="2" Content="N" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="Tuner" Tag="InputTuner" />
+                                <ComboBoxItem Content="HDMI 1" Tag="InputHDMI1" />
+                                <ComboBoxItem Content="HDMI 2" Tag="InputHDMI2" />
+                                <ComboBoxItem Content="HDMI 3" Tag="InputHDMI3" />
+                                <ComboBoxItem Content="HDMI 4" Tag="InputHDMI4" />
+                                <ComboBoxItem Content="AV1" Tag="InputAV1" />
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <Button Grid.Row="2" Grid.Column="2" Content="N" Command="{Binding PressButtonCommand}" Style="{StaticResource BigRemoteButtonStyle}"
                             CommandParameter="ChannelDown" />
-                </Grid>
+                    </Grid>
 
-                <Grid Margin="20,10,20,0">
-                    <StackPanel Grid.Row="0" VerticalAlignment="Bottom">
-                        <TextBox x:Name="VirtualKeyboard" 
+                    <Grid Margin="20,10,20,0">
+                        <StackPanel Grid.Row="0" VerticalAlignment="Bottom">
+                            <TextBox x:Name="VirtualKeyboard" 
                                  FontSize="25em"
                                  PlaceholderText="Type here to use keyboard"
                                  IsEnabled="{Binding ButtonsEnabled}"
                                  TextAlignment="Center"
                                  KeyUp="VirtualKeyboard_KeyUp" />
-                        <Button Command="{Binding PressButtonCommand}"
+                            <Button Command="{Binding PressButtonCommand}"
                                 CommandParameter="FindRemote" 
                                 Margin="0,10,0,0" Content="Find My Remote"
                                 Foreground="{StaticResource ButtonStyle1Foreground}"
                                 BorderBrush="{StaticResource ButtonStyle1Foreground}"
                                 BorderThickness="1"
                                 HorizontalAlignment="Right" />
-                    </StackPanel>
-                </Grid>
-            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Viewbox>
             <Popup x:Name="NewDeviceForm" IsOpen="{Binding ShowNewDeviceForm, Mode=TwoWay}"
                    Height="{Binding LeftGridHeight}"
                    Width="{Binding LeftGridWidth}"
@@ -271,6 +287,7 @@
                     </Grid>
                 </ScrollViewer>
             </Popup>
+
         </Grid>
 
         <Grid Grid.Column="1" Background="#FF170e26" Margin="20,0,0,0">
@@ -306,8 +323,11 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <TextBlock Grid.Row="2" Margin="0,0,5,5" Text="{Binding MyIp}" FontSize="12em" Foreground="LightYellow"
-                       TextAlignment="Right" HorizontalAlignment="Right" />
+            <Button Grid.Row="2" Margin="0,0,5,5" Content="{Binding MyIp}" FontSize="12em" 
+                    Foreground="LightYellow" Background="Transparent" HorizontalContentAlignment="Right"
+                       HorizontalAlignment="Right"
+                    Command="{Binding ShowLogFolder}">
+            </Button>
         </Grid>
     </Grid>
 </Page>

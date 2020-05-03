@@ -6,6 +6,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using RRemote.ViewModels;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.Storage;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -20,6 +21,7 @@ namespace RRemote
         {
             Application.Current.Suspending += Current_Suspending;
             vm = new RemoteViewModel();
+            vm.AnimateMethod = AnimateRefresh;
             DataContext = vm;
             InitializeComponent();
         }
@@ -73,12 +75,12 @@ namespace RRemote
             vm.LeftGridWidth = LeftGrid.ActualWidth;
         }
 
-        //private void mainPage_SizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-        //    NewDeviceForm.GetBindingExpression(Popup.HeightProperty).UpdateTarget();
-        //    NewDeviceForm.GetBindingExpression(Popup.WidthProperty).UpdateSource();
-        //    DeviceDetails.GetBindingExpression(Popup.HeightProperty).UpdateSource();
-        //    DeviceDetails.GetBindingExpression(Popup.WidthProperty).UpdateSource();
-        //}
+        private void AnimateRefresh(bool isAnimating)
+        {
+            if (isAnimating)
+                colorStoryboard.Begin();
+            else
+                colorStoryboard.Stop();
+        }
     }
 }

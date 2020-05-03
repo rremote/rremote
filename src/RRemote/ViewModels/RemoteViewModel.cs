@@ -15,6 +15,8 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using RRemote.Common;
 using RRemote.Roku;
 using Windows.UI.Popups;
+using System.Net.NetworkInformation;
+using Windows.System;
 
 namespace RRemote.ViewModels
 {
@@ -62,7 +64,7 @@ namespace RRemote.ViewModels
             {
                 SetProperty(ref _selectedDevice, value);
 
-                if (value != null)
+                if (value != null && !string.IsNullOrWhiteSpace(value.Endpoint))
                 {
                     lock (DeviceLocker)
                     {
@@ -74,9 +76,10 @@ namespace RRemote.ViewModels
                     if (!value.IsPlaceholder)
                     {
                         DiscoverApps(value);
-                        ButtonsEnabled = value != null;
                     }
                 }
+                ButtonsEnabled = value != null && value.IsPlaceholder == false
+                    && value.user_device_name != "Searching...";
                 PressButtonCommand.RaiseCanExecuteChanged();
                 LaunchAppCommand.RaiseCanExecuteChanged();
                 DeleteDeviceCommand.RaiseCanExecuteChanged();
@@ -118,19 +121,26 @@ namespace RRemote.ViewModels
         private string GetLocalIp()
         {
             var ips = "";
-            var icp = NetworkInformation.GetInternetConnectionProfile();
+            //var icp = NetworkInformation.GetInternetConnectionProfile();
 
-            if (icp?.NetworkAdapter == null) return "";
-            var hostnames = NetworkInformation.GetHostNames();
-            foreach (var host in hostnames)
-                //if (host.IPInformation != null
-                //    && host.IPInformation.NetworkAdapter != null
-                //    && host.IPInformation.NetworkAdapter.NetworkAdapterId != null)
-                //    ips += $"{host.IPInformation.NetworkAdapter.NetworkAdapterId} ";
-                //else
-                ips += $"{host.CanonicalName} ";
+            //if (icp?.NetworkAdapter == null) return "";
+            //var hostnames = NetworkInformation.GetHostNames();
+            //foreach (var host in hostnames)
+            //    //if (host.IPInformation != null
+            //    //    && host.IPInformation.NetworkAdapter != null
+            //    //    && host.IPInformation.NetworkAdapter.NetworkAdapterId != null)
+            //    //    ips += $"{host.IPInformation.NetworkAdapter.NetworkAdapterId} ";
+            //    //else
+            //    ips += $"{host.CanonicalName} ";
 
-            // the ip address
+            //// the ip address
+            NetworkInterface[] nics = RokuClient.GetUsableNics();
+            foreach (var nic in nics)
+            {
+                foreach (var addr in nic.GetIPProperties().UnicastAddresses
+                    .Where(x => x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
+                    ips += $"{addr.Address} ";
+            }
             return ips;
         }
 
@@ -169,8 +179,8 @@ namespace RRemote.ViewModels
         #endregion
 
         #region Discovery
-
-        private int DiscoverDeviceTimeInMinutes { get; } = 1;
+        public Action<bool> AnimateMethod = null;
+        private int DiscoverDeviceTimeInMinutes { get; } = 5;
         private ThreadPoolTimer DiscoverDeviceTimer { get; set; }
         private bool ShownAutoDiscoverFailureMessage { get; set; }
         private void DiscoverDeviceTimer_Tick(ThreadPoolTimer timer)
@@ -193,7 +203,7 @@ namespace RRemote.ViewModels
             
             Task.Run(async () =>
             {
-                
+                UiRun(() => { AnimateMethod?.Invoke(true); });
                 //Search the local network using SSDP
                 await RokuClient.Discover(DeviceDiscovered, _mcIp, _mcPort);
 
@@ -224,7 +234,7 @@ namespace RRemote.ViewModels
                     devices = AvailableDevices.Where(x => !x.IsStatic && !x.IsPlaceholder).ToArray();
                 }
 
-                TimeSpan olderThan = TimeSpan.FromMinutes(DiscoverDeviceTimeInMinutes);
+                TimeSpan olderThan = TimeSpan.FromMinutes(5*DiscoverDeviceTimeInMinutes);
                 DateTime now = DateTime.Now;
                 foreach (var dev in devices)
                     if ( ((now - dev.LastSeen) > olderThan) && !dev.IsPlaceholder )
@@ -241,6 +251,7 @@ namespace RRemote.ViewModels
                 if (DiscoverDeviceTimer == null)
                     DiscoverDeviceTimer = ThreadPoolTimer.CreatePeriodicTimer(DiscoverDeviceTimer_Tick,
                         TimeSpan.FromMinutes(DiscoverDeviceTimeInMinutes));
+                UiRun(() => { AnimateMethod?.Invoke(false); });
             });
         }
 
@@ -255,7 +266,7 @@ namespace RRemote.ViewModels
                 lock (DeviceLocker)
                 {
                     foreach( var dev in AvailableDevices.ToArray() )
-                        if( dev.IsPlaceholder )
+                        if( dev.IsPlaceholder || dev.user_device_name == "Searching..." )
                         {
                             AvailableDevices.Remove(dev);
                         }
@@ -334,10 +345,13 @@ namespace RRemote.ViewModels
             {
                 var dApps = RokuClient.ListDeviceApps(device.Endpoint).Result;
 
-                foreach (var dApp in dApps)
-                    AppDiscovered(device, dApp);
+                if (dApps != null && dApps.Count() > 0)
+                {
+                    foreach (var dApp in dApps)
+                        AppDiscovered(device, dApp);
 
-                FindAndSetActiveApp();
+                    FindAndSetActiveApp();
+                }
             });
         }
 
@@ -375,7 +389,9 @@ namespace RRemote.ViewModels
             if (SelectedDevice != null && !SelectedDevice.IsPlaceholder)
             {
                 var activeApp = RokuClient.GetCurrentApp(SelectedDevice.Endpoint).Result;
-                MakeAppActive(SelectedDevice, activeApp);
+                if( activeApp != null && activeApp.App != null && 
+                    !string.IsNullOrWhiteSpace(activeApp.App.Id) )
+                    MakeAppActive(SelectedDevice, activeApp);
             }
         }
 
@@ -564,6 +580,21 @@ namespace RRemote.ViewModels
             return true;
         }
 
+        private DelegateCommand _showLogFolder;
+
+        public DelegateCommand ShowLogFolder => _hideFormsCommand ?? (_showLogFolder = new DelegateCommand(
+                                                       async () => { await ShowLogFolderAsync(); } ));
+
+        private async Task ShowLogFolderAsync()
+        {
+            try
+            {
+                var sf = await ApplicationData.Current.LocalFolder.GetFolderAsync("MetroLogs");
+                await Launcher.LaunchFolderAsync(sf);
+            }
+            catch { }
+        }
+
         private double _LeftGridWidth;
 
         public double LeftGridWidth
@@ -582,6 +613,20 @@ namespace RRemote.ViewModels
         #endregion
 
         #region Commands
+        private DelegateCommand _refreshDeviceList;
+
+        public DelegateCommand RefreshDeviceList => _hideFormsCommand ?? (_refreshDeviceList = new DelegateCommand(
+                                                       async () => { await RefreshDeviceListAsync(); }));
+
+        private async Task RefreshDeviceListAsync()
+        {
+            try
+            {
+                DiscoverDeviceTimer.Cancel();
+                DiscoverDeviceTimer_Tick(null);
+            }
+            catch { }
+        }
 
         private DelegateCommand<string> _pressButtonCommand;
 
@@ -648,6 +693,8 @@ namespace RRemote.ViewModels
             
             foreach (var dev in devices)
             {
+                if (dev.user_device_name == "Searching...")
+                    continue;
                 if (dev.IsStatic)
                     dev.LastSeen = DateTime.Now.AddYears(100);
                 else
